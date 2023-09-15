@@ -16,7 +16,7 @@ try {
     }
     const{email,password}=req.body;
    
-    const authUser = await AuthModel.findOne({ email }).populate("user","-createdAt -updatedAt").select("-createdAt -updatedAt");
+    const authUser = await AuthModel.findOne({ email }).populate("userID","-createdAt -updatedAt").select("-createdAt -updatedAt");
    
     if (!authUser){
         return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please sign up to create an account"));
@@ -55,13 +55,13 @@ async singnUp(req,res){
     const existingUser = await UserModel.findOne({ email:email });
 
     if (existingUser) {
-        return res.status(HTTP_STATUS.CONFLICT).send(failure("User already exists with this email"));
+        return res.status(HTTP_STATUS.CONFLICT).send(failure("User already exists with this email ID"));
       }
     const user=await UserModel.create({
         name:name,
         email: email,
         phone:phone,
-        balance:balance,
+        balance:balance||0,
         address:address,
 
      });
@@ -74,13 +74,13 @@ async singnUp(req,res){
         email:email,
         password: hashedPassword,
         role:role,
-        verified: false,
-        user: user._id,
+        verified: true,
+        userID: user._id,
         
 
       });
   
-     return res.status(HTTP_STATUS.OK).send(success("User registered successfully"));
+     return res.status(HTTP_STATUS.OK).send(success("Registration successful!!!"));
 
         
     } catch (error) {

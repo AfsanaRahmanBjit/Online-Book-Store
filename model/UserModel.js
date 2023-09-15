@@ -28,27 +28,23 @@ const userSchema = new mongoose.Schema({
   address: {
     house: String,
     road: String,
-    area: {
-        type: String,
-        required: true,
-    },
-    city: {
-        type: String,
-        required: true,
-    },
-    country: {
-        type: String,
-        required: true,
-    },
+    area: String,
+    city: String,
   },
+  role:
+    {
+        type:Number,
+        required:false,
+        default:2
+    },
   verified: {
     type: Boolean,
-    required: false,
+    required: [true,"Varification Status is not provide"],
     default: false,
 },
 },
 {timestamps:true}
 );
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model("users", userSchema);
 module.exports = User;
 

@@ -4,7 +4,9 @@ const app=express();
 const dotenv=require("dotenv");
 const databaseConnection=require("./config/database");
 
-const AuthRoute=require("./routes/AuthRoute")
+const AuthRoute=require("./routes/AuthRoute");
+const UserRoute=require("./routes/UserRoute");
+const BookRoute=require("./routes/BookRoute");
 
 
 
@@ -21,8 +23,8 @@ app.use(express.urlencoded({extended:true}));
 //   next();
 // });
 app.use("/auths",AuthRoute);
-
-
+app.use("/users",UserRoute);
+app.use("/books",BookRoute);
 databaseConnection(()=>{
 app.listen(8000, () => {
     console.log("Server is running on port 8000");

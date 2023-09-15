@@ -4,12 +4,12 @@ const authSchema=new mongoose.Schema(
   {
     email:{
         type:String,
-        required:true,
+        required:[true,"Email is not provide"]
 
     },
     password:{
         type:String,
-        required:true,
+        required:[true,"Password is not provide"]
 
     },
     role:
@@ -20,17 +20,17 @@ const authSchema=new mongoose.Schema(
     },
      verified:{
          type:Boolean,
-         required:false,
+         required:[true,"Varification Status is not provide"],
          default:false,
      },
     userID:{
         type:mongoose.Types.ObjectId,
-        ref:"User",
-        required:true,
+        ref:"users",
+        required:[true,"User ID is not provide"]
     },
  },
  {timestamps:true}
 
 );
-const Auth = mongoose.model("Authentication",authSchema );
+const Auth = mongoose.model("authentications",authSchema );
 module.exports = Auth;
