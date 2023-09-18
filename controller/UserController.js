@@ -19,9 +19,38 @@ class UserController {
     }
   }
 
-
-
   async update(req, res) {
+    try {
+      const validation = validationResult(req).array();
+      if (validation.length > 0) {
+        return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Failed to update the user data", validation));
+      }
+  
+      const { id } = req.params;
+      const user = await UserModel.findById({_id:id});
+      if (!user) {
+        return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found for the given ID"));
+      }
+  
+      const {name,email,phone,address,role,verified}=req.body;
+
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        id,
+        { name,email,phone,address,role,verified }, 
+        { new: true }
+      );
+  
+      if (updatedUser) {
+        return res.status(HTTP_STATUS.OK).send(success("Successfully updated the user data", updatedUser));
+      } 
+       return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Failed to update the user data"));
+      } catch (error) {
+      console.log(error);
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Internal server error"));
+    }
+  }
+
+  async partialUpdate(req, res) {
     try {
       const validation = validationResult(req).array();
       if (validation.length > 0) {
@@ -70,7 +99,36 @@ class UserController {
     }
   }
 
+  async balanceUpdate(req, res) {
+    try {
+      const validation = validationResult(req).array();
+      if (validation.length > 0) {
+        return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Failed to update the user data", validation));
+      }
+  
+      const { id } = req.params;
+      const user = await UserModel.findById({_id:id});
+      if (!user) {
+        return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found for the given ID"));
+      }
+  
+      const {balance}=req.body;
 
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        id,
+        { balance }, 
+        { new: true }
+      );
+  
+      if (updatedUser) {
+        return res.status(HTTP_STATUS.OK).send(success("Successfully updated the user balance", updatedUser));
+      } 
+       return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Failed to update the user balance"));
+      } catch (error) {
+      console.log(error);
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Internal server error"));
+    }
+  }
 
   async deleteOneById(req, res) {
     try {

@@ -41,17 +41,17 @@ const isAdmin = (req, res, next) => {
         next();
       } else {
         
-        return res.status(HTTP_STATUS.FORBIDDEN).send(failure("Access denied for non-admin users"));
+        return res.status(HTTP_STATUS.FORBIDDEN).send(failure("Unauthorized access."));
       }
     } catch (error) {
       console.log(error);
       if (error instanceof jsonwebtoken.JsonWebTokenError) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Token invalid"));
+        return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Token invalid."));
       }
       if (error instanceof jsonwebtoken.TokenExpiredError) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Token expired"));
+        return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Token expired."));
       }
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Token expired"));
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Token expired."));
     }
   };
 
@@ -61,22 +61,22 @@ const isAdmin = (req, res, next) => {
       const { role } = jsonwebtoken.decode(req.headers.authorization.split(" ")[1]);
   
     
-      if (role == 1||role == 2) {
+      if (role == 2) {
         
         next();
       } else {
         
-        return res.status(HTTP_STATUS.FORBIDDEN).send(failure("Access denied for unauthorized users"));
+        return res.status(HTTP_STATUS.FORBIDDEN).send(failure("Unouthorized access."));
       }
     } catch (error) {
       console.log(error);
       if (error instanceof jsonwebtoken.JsonWebTokenError) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Token invalid"));
+        return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Token invalid."));
       }
       if (error instanceof jsonwebtoken.TokenExpiredError) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Token expired"));
+        return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Token expired."));
       }
-      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Token expired"));
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Token expired."));
     }
   };
 

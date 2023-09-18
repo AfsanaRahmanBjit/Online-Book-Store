@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const discountSchema = new mongoose.Schema(
   {
-    book: {
+    bookID: {
       type: mongoose.Types.ObjectId,
       ref: "books",
       required: true,

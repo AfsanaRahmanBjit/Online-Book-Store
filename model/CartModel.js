@@ -7,10 +7,10 @@ const cartSchema=new mongoose.Schema(
         ref:"users",
         require:true,
          },
-     products:{
+     books:{
         type:[
              {
-                productID:{
+                bookID:{
                 type:mongoose.Types.ObjectId,
                 ref:"books",
                 required:true,

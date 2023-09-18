@@ -14,7 +14,6 @@ class BookController {
 
         const pageNum = parseInt(page);
         const limitNum = parseInt(limit);
-        
         if(page && isNaN(pageNum)){
 
           return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Page must be a valid numbers"));
@@ -40,25 +39,27 @@ class BookController {
         const limitNum_default=limitNum||5;
         let query={};
 
-        if (search) {
-          const numeric=parseInt(search);
+         if (search) {
+        //   const numeric=parseInt(search);
          
-          if (!isNaN(numeric)) {
+          // if (!isNaN(numeric)) {
           
-          query.$or= [
-               { price: numeric}, 
-               { discount: numeric },
-              ];
-               }
+          // query.$or= [
+          //      { price: numeric}, 
+          //      { stock: numeric },
+          //     ];
+          //      }
           query.$or = [
-                { name: { $regex: search, $options: "i" } },
+                { title: { $regex: search, $options: "i" } },
+                { author: { $regex: search, $options: "i" } },
+                { publisher: { $regex: search, $options: "i" } },
               ];     
-              };
+               };
         
        
         const sortOptions = {};
           if(sortBy && sortOrder){
-             if(!['title','author','publisher','price','stock'].includes(sortBy)){
+             if(!['price','stock'].includes(sortBy)){
                return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Invalid attribute to sort by"));
              }
             if (!['asc', 'desc'].includes(sortOrder)){
@@ -104,6 +105,15 @@ class BookController {
              }
           
           }
+          if(filterField==='stock'){
+            if (filterLimit=== 'high') {
+            query.stock = { $gte: filterStartNum };
+           } 
+          if (filterLimit === 'low') {
+          query.discount = { $lte:filterStartNum };
+          }
+         
+          }
       
         }
         if((!filterField) && filterStart && filterLimit)
@@ -133,19 +143,19 @@ class BookController {
         }
 
 
-        const products = await ProductModel.find({});
+        const books = await BookModel.find({});
         
-        if(products.length<=0){
+        if(books.length<=0){
          
           return res.status(HTTP_STATUS.NOT_FOUND).send(success("No products were found"));
         }
       
-        const productsPage = await ProductModel.find(query,{createdAt:false,updatedAt:false}).sort(sortOptions).skip((pageNum_default-1)*limitNum_default).limit(limitNum_default);
+        const booksPage = await BookModel.find(query,{createdAt:false,updatedAt:false}).sort(sortOptions).skip((pageNum_default-1)*limitNum_default).limit(limitNum_default);
       
-        if (productsPage.length > 0) {
-           return res.status(HTTP_STATUS.OK).send(success("Successfully received all products", { Page:pageNum_default, Limit:limitNum_default, Total:products.length, Result:productsPage}));
+        if (booksPage.length > 0) {
+           return res.status(HTTP_STATUS.OK).send(success("Successfully received all Books", { Page:pageNum_default, Limit:limitNum_default, Total:books.length, Result:booksPage}));
           }
-        return res.status(HTTP_STATUS.NOT_FOUND).send(success("No products were found with the provided criteria"));
+        return res.status(HTTP_STATUS.NOT_FOUND).send(success("No book was found with the provided criteria"));
     } catch (error) {
       console.log(error);
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Internal server error"));
@@ -175,10 +185,10 @@ class BookController {
       }
 
       const {title, author, publisher, price, stock} = req.body;
-      const findBook=await BookModel.find({title:title,author:author});
-      if(findBook){
-        return res.status(HTTP_STATUS.CONFLICT).send(failure("There is already a book exist with same title and author"));
-      }
+       const findBook=await BookModel.find({title:title,author:author});
+       if(findBook.length>0){
+         return res.status(HTTP_STATUS.CONFLICT).send(failure("There is already a book exist with same title and author"));
+       }
     
       const book=await BookModel.create({
         title:title,
@@ -200,9 +210,43 @@ class BookController {
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Internal server error"));
     }
   }
-
-
   async update(req, res) {
+    try {
+      const validation = validationResult(req).array();
+      if (validation.length > 0) {
+        return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Failed to update the product", validation));
+      }
+  
+      const { id } = req.params;
+      const book = await BookModel.findById({ _id: id });
+      if (!book) {
+        return res.status(HTTP_STATUS.NOT_FOUND).send(failure("There is no book exist with the given book ID"));
+      }
+      
+     
+      const {title, author, publisher, price, stock} = req.body;
+      
+     
+      const updatedBook = await BookModel.findByIdAndUpdate(
+        id,
+        { title, author, publisher, price, stock }, 
+        { new: true }
+      );
+  
+      if (updatedBook) {
+        return res.status(HTTP_STATUS.OK).send(success("Successfully updated the book data", updatedBook));
+      } 
+       return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Failed to update the book data"));
+      
+    } catch (error) {
+      console.log(error);
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Internal server error"));
+    }
+  }
+
+
+
+  async partialUpdate(req, res) {
     try {
       const validation = validationResult(req).array();
       if (validation.length > 0) {
@@ -240,7 +284,7 @@ class BookController {
       );
   
       if (updatedBook) {
-        return res.status(HTTP_STATUS.OK).send(success("Successfully updated the book data", updatedUser));
+        return res.status(HTTP_STATUS.OK).send(success("Successfully updated the book data", updatedBook));
       } 
        return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Failed to update the book data"));
       
@@ -251,7 +295,7 @@ class BookController {
   }
 
 
-
+  
   async deleteOneById(req, res) {
     try {
       const { id } = req.params;

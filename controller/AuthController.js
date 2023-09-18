@@ -1,3 +1,4 @@
+const express = require('express');
 const { validationResult } = require("express-validator");
 const { success, failure } = require("../output/statements");
 const AuthModel = require("../model/AuthModel");
@@ -5,11 +6,13 @@ const UserModel = require('../model/UserModel');
 const HTTP_STATUS = require("../constants/statusCodes");
 const bcrypt=require("bcrypt");
 const jsonwebtoken=require("jsonwebtoken");
+const { log } = require('./logger');
 
 class AuthController{
 
 async login(req,res){
 try {
+    log(req.headers +"/ Authentication route was accessed for loggin in");
     const validation= validationResult(req).array();
     if(validation.length>0){
         return res.status(HTTP_STATUS.OK).send(failure("Failed to add the user",validation));
@@ -46,6 +49,7 @@ try {
 }
 async singnUp(req,res){
     try {
+    log(req.headers +"/ Authentication route was accessed for signning up");
     const validation= validationResult(req).array();
     if(validation.length>0){
         return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Failed to add the user",validation));
@@ -63,6 +67,8 @@ async singnUp(req,res){
         phone:phone,
         balance:balance||0,
         address:address,
+        role:role,
+        verified: true,
 
      });
       
