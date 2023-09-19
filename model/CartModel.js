@@ -5,7 +5,7 @@ const cartSchema=new mongoose.Schema(
      userID:{
         type:mongoose.Types.ObjectId,
         ref:"users",
-        require:true,
+        required:true,
          },
      books:{
         type:[
@@ -28,7 +28,7 @@ const cartSchema=new mongoose.Schema(
    checkout:{
       type:Boolean,
       default:false,
-      require:true,
+      required:true,
    },
   },
   {timestamps:true}

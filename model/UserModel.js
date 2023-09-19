@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    require:[true,"Email is not provide"],
+    required:[true,"Email is not provide"],
     unique: true,
     match: [
         /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/,
@@ -20,17 +20,12 @@ const userSchema = new mongoose.Schema({
   },
   balance: {
     type: Number,
-    require:[true,"Balance is not provide"],
+    required:[true,"Balance is not provide"],
     default: 0,
     min: 0,
     max: 100000,
   },
-  address: {
-    house: String,
-    road: String,
-    area: String,
-    city: String,
-  },
+
   role:
     {
         type:Number,

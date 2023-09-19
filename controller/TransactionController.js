@@ -1,38 +1,40 @@
-//const { validationResult } = require("express-validator");
 const { success, failure } = require("../output/statements");
 const BookModel = require("../model/BookModel");
 const UserModel = require('../model/UserModel');
-const CartModel=require("../model/CartModel")
-const TransactionModel = require("../model/");
+const CartModel=require("../model/CartModel");
+const DiscountModel = require('../model/DiscountModel');
+const TransactionModel = require("../model/TransactionModel");
 const HTTP_STATUS = require("../constants/statusCodes");
 
 class TransactionController {
 
-
-
-   async checkout(req,res){
+async checkout(req,res){
     try {
-      const {cartID}=req.body;
-      const cart=await CartModel.findById(cartID);
-      if(!cart){
-        return res.status(HTTP_STATUS.NOT_FOUND).send(failure("No cart was found"));
-      }
-      
-      const {userID, books, checkout}=cart;
 
-      const Cartbooks = await Promise.all(books.map(async (bookItem) => {
+      const { userID, cartID } = req.body;
+      const cart = await CartModel.findOne({ _id: cartID, userID: userID });
+
+      if (!cart) {
+          return sendResponse(res, HTTP_STATUS.NOT_FOUND, "Cart was not found for this user");
+      }
+
+      if (cart.books.length === 0) {
+          return sendResponse(res, HTTP_STATUS.UNPROCESSABLE_ENTITY, "Please add books to cart first");
+      }
+
+      const Cartbooks = await Promise.all(cart.books.map(async (bookItem) => {
         const { bookID, quantity } = bookItem;
         const book = await BookModel.findById(bookID);
         
         if (!book) {
-            return res.status(HTTP_STATUS.NOT_FOUND).send(failure("This book does not exist"));
+            return res.status(HTTP_STATUS.NOT_FOUND).send(failure(`Book not found with ID: ${bookItem.bookID}`));
         }
 
         if (book.stock<quantity) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).send(failure(`Insufficient stock for book ${book.title}`));
+            return res.status(HTTP_STATUS.BAD_REQUEST).send(failure(`Insufficient stock for book, Book Title: ${book.title}`));
         }
         const now = new Date();
-        const validDiscount = await Discount.findOne({
+        const validDiscount = await DiscountModel.findOne({
           bookID: bookID,
           startDate: { $lte: now },
           endDate: { $gte: now },
@@ -65,11 +67,14 @@ class TransactionController {
       user.balance-=totalCost;
       await user.save();
       const transactionData ={
-        cart: cart.cartID,
+        cartID: cartID,
+        userID: userID,
         books: Cartbooks,
         total: totalCost,
         paymentMethod: "online", // You can set the payment method as needed
       };
+      cart.books = [];
+      cart.total=0;
       cart.checkout = true;
       await cart.save();
 

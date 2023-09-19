@@ -3,12 +3,12 @@ const mongoose=require("mongoose");
 const transactionSchema=new mongoose.Schema(
 {
 
-   card:{
+   cartID:{
     type:mongoose.Types.ObjectId,
     ref:"Cart",
     required:true,
    },
-   user:{
+   userID:{
         type: mongoose.Types.ObjectId,
          ref: "User",
          required: true,
@@ -29,7 +29,7 @@ const transactionSchema=new mongoose.Schema(
      },
       total:{
         type:Number,
-        require:true
+        required:true
     },
     paymentMethod: {
         type: String,

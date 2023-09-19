@@ -4,23 +4,23 @@ const bookSchema = new mongoose.Schema({
     type: String,
     unique:[true,"There is another book with same Book Title"],
     required: [true, "Book Title was not provided"],
-    maxLength: 50,
+    maxLength: 30,
   },
   author:{
     type: String,
     required: [true, "Author name was not provided"],
-    maxLength: 30,
+    maxLength: 20,
   },
   publisher:{
     type: String,
     required: [true, "Publisher name was not provided"],
-    maxLength: 30,
+    maxLength: 20,
   },
   price: {
     type: Number,
     required:[true, "Price of the book is not provided"],
-    default:1,
-    min:1,
+    default:10,
+    min:10,
   },
   stock: {
     type: Number,
@@ -29,10 +29,10 @@ const bookSchema = new mongoose.Schema({
     min: 0,
     max: 200,
   },
-  reviews: [
+  feedbacks: [
     {
       type: mongoose.Types.ObjectId,
-      ref: "reviews",
+      ref: "feedbacks",
     },
   ],
   discounts: [

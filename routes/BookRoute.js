@@ -11,6 +11,7 @@ routes.get("/all",BookController.getAll);
 //routes.get("/get/:id", isAuthorized,isAdmin,BookController.getOneById);
 routes.post("/add", isAuthorized,isAdmin,bookValidator.add, BookController.add);
 routes.put("/update/:id",isAuthorized,isAdmin,bookValidator.update,BookController.update);
+routes.patch("/update/:id",isAuthorized,isAdmin,bookValidator.partialUpdate,BookController.partialUpdate);
 routes.delete("/delete/:id",isAuthorized,isAdmin,BookController.deleteOneById);
 
 module.exports = routes;

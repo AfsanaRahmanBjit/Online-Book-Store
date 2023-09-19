@@ -40,15 +40,7 @@ class BookController {
         let query={};
 
          if (search) {
-        //   const numeric=parseInt(search);
-         
-          // if (!isNaN(numeric)) {
-          
-          // query.$or= [
-          //      { price: numeric}, 
-          //      { stock: numeric },
-          //     ];
-          //      }
+        
           query.$or = [
                 { title: { $regex: search, $options: "i" } },
                 { author: { $regex: search, $options: "i" } },
@@ -60,31 +52,31 @@ class BookController {
         const sortOptions = {};
           if(sortBy && sortOrder){
              if(!['price','stock'].includes(sortBy)){
-               return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Invalid attribute to sort by"));
+               return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Invalid attribute to sort by"));
              }
             if (!['asc', 'desc'].includes(sortOrder)){
-              return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Invalid sorting order"));
+              return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Invalid sorting order"));
             } 
             sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
             }
             if((!sortBy) && sortOrder)
             {
-              return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Please provide the a attribute name which you want  to sort "));
+              return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Please provide the a attribute name which you want  to sort "));
             }
             if((sortBy) && (!sortOrder))
             {
-              return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Please provide the sorting order "));
+              return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Please provide the sorting order "));
             }
 
 
           if (filterField && filterStart && filterLimit) {
             if(!['price','stock'].includes(filterField)){
-              return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Invalid attribute for filter out"));
+              return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Invalid attribute for filter out"));
             }
             const filterStartNum = parseInt(filterStart);
           
             if (isNaN(filterStartNum)) {
-              return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Invalid filter starting value"));
+              return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Invalid filter starting value"));
             }
           
             if(filterField==='discount'){
@@ -118,28 +110,28 @@ class BookController {
         }
         if((!filterField) && filterStart && filterLimit)
         {
-          return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Please provide the filter Field"));
+          return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Please provide the filter Field"));
         }
         if(filterField && (!filterStart) && filterLimit)
         {
-          return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Please provide the filter starting point"));
+          return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Please provide the filter starting point"));
         }
         if(filterField && filterStart && (!filterLimit))
         {
-          return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Please provide the filter limit"));
+          return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Please provide the filter limit"));
         }
 
         if((!filterField) && (!filterStart) && filterLimit)
         {
-          return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Please provide the filter Field and filter starting point"));
+          return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Please provide the filter Field and filter starting point"));
         }
         if((filterField) && (!filterStart) && (!filterLimit))
         {
-          return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Please provide the filter starting point and filter limit "));
+          return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Please provide the filter starting point and filter limit "));
         }
         if((!filterField) && filterStart && (!filterLimit))
         {
-          return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Please provide the filter field  and filter limit "));
+          return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Please provide the filter field  and filter limit "));
         }
 
 
@@ -181,26 +173,26 @@ class BookController {
     try {
       const validation = validationResult(req).array();
       if (validation.length > 0) {
-        return res.status(HTTP_STATUS.OK).send(failure("Failed to add the book", validation));
+        return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Failed to add the book", validation));
       }
 
       const {title, author, publisher, price, stock} = req.body;
-       const findBook=await BookModel.find({title:title,author:author});
-       if(findBook.length>0){
+      const findBook=await BookModel.find({title:title,author:author});
+      if(findBook.length>0){
          return res.status(HTTP_STATUS.CONFLICT).send(failure("There is already a book exist with same title and author"));
-       }
+      }
     
       const book=await BookModel.create({
-        title:title,
+        title: title,
         author: author,
-        publisher:publisher,
-        price:price,
-        stock:stock,
+        publisher: publisher,
+        price: price,
+        stock: stock,
 
      });
       
      if(book){
-          return res.status(HTTP_STATUS.OK).send(success("Successfully added the book", book));
+          return res.status(HTTP_STATUS.CREATED).send(success("Successfully added the book", book));
         }
         
      return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Failed to add the book"));
@@ -236,7 +228,7 @@ class BookController {
       if (updatedBook) {
         return res.status(HTTP_STATUS.OK).send(success("Successfully updated the book data", updatedBook));
       } 
-       return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Failed to update the book data"));
+       return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Failed to update the book data"));
       
     } catch (error) {
       console.log(error);
@@ -286,7 +278,7 @@ class BookController {
       if (updatedBook) {
         return res.status(HTTP_STATUS.OK).send(success("Successfully updated the book data", updatedBook));
       } 
-       return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Failed to update the book data"));
+       return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Failed to update the book data"));
       
     } catch (error) {
       console.log(error);
@@ -308,7 +300,7 @@ class BookController {
       if (book_dalete) {
         return res.status(HTTP_STATUS.OK).send(success("Successfully deleted the book"));
       } 
-      return res.status(HTTP_STATUS.OK).send(failure("Failed to delete the book"));
+      return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Failed to delete the book"));
       
     } catch (error) {
       console.log(error);

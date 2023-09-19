@@ -1,15 +1,15 @@
-const express=require("express");
-const cors=require("cors");
-const app=express();
-const dotenv=require("dotenv");
-const databaseConnection=require("./config/database");
+const express = ("express");
+const cors = ("cors");
+const app = ();
+const dotenv = require("dotenv");
+const databaseConnection = require("./config/database");
 
-const AuthRoute=require("./routes/AuthRoute");
-const UserRoute=require("./routes/UserRoute");
-const BookRoute=require("./routes/BookRoute");
-const TransactionRoute=require("./routes/TransactionRoute");
-const CartRoute=require("./routes/CartRoute");
-const DiscountRoute=require("./routes/DiscountRoute");
+const AuthRoute = require("./routes/AuthRoute");
+const UserRoute = require("./routes/UserRoute");
+const BookRoute = require("./routes/BookRoute");
+const TransactionRoute = require("./routes/TransactionRoute");
+const CartRoute = require("./routes/CartRoute");
+const DiscountRoute = require("./routes/DiscountRoute");
 
 
 

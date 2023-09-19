@@ -32,11 +32,11 @@ class UserController {
         return res.status(HTTP_STATUS.NOT_FOUND).send(failure("User not found for the given ID"));
       }
   
-      const {name,email,phone,address,role,verified}=req.body;
+      const {name,email,phone,role,verified}=req.body;
 
       const updatedUser = await UserModel.findByIdAndUpdate(
         id,
-        { name,email,phone,address,role,verified }, 
+        { name,email,phone,role,verified }, 
         { new: true }
       );
   
@@ -73,9 +73,6 @@ class UserController {
       }
       if (req.body.phone) {
         updatedFields.rank = req.body.phone;
-      }
-      if (req.body.address) {
-        updatedFields.discountPercentage = req.body.address;
       }
       if (req.body.role) {
         updatedFields.discountPercentage = req.body.role;

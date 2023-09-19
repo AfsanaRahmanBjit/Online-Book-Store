@@ -6,13 +6,13 @@ const UserModel = require('../model/UserModel');
 const HTTP_STATUS = require("../constants/statusCodes");
 const bcrypt=require("bcrypt");
 const jsonwebtoken=require("jsonwebtoken");
-const { log } = require('./logger');
+const { log } = require('../server/logger');
 
 class AuthController{
 
 async login(req,res){
 try {
-    log(req.headers +"/ Authentication route was accessed for loggin in");
+    log(req.method +"/ Authentication route was accessed for loggin in");
     const validation= validationResult(req).array();
     if(validation.length>0){
         return res.status(HTTP_STATUS.OK).send(failure("Failed to add the user",validation));
@@ -29,14 +29,14 @@ try {
 
     if(!passwordMatch){
          
-        return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Invalid credentials"));
+        return res.status(HTTP_STATUS.UNAUTHORIZED).send(failure("Please provide the correct Email and password."));
     }
     
     const responseAuth=authUser.toObject();
     delete responseAuth.password;
     //delete responseAuth._id;
 
-    const jwt=jsonwebtoken.sign(responseAuth, process.env.SECRET_KEY,{expiresIn:"1h"});
+    const jwt=jsonwebtoken.sign(responseAuth, process.env.SECRET_KEY,{expiresIn:"24h"});
     responseAuth.token=jwt;
     
     return res.status(HTTP_STATUS.OK).send(success("You are Logged in successfully!!!",responseAuth));
@@ -54,7 +54,7 @@ async singnUp(req,res){
     if(validation.length>0){
         return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Failed to add the user",validation));
     }
-    const{name,email,password,phone,balance, address,role}=req.body;
+    const{name,email,password,phone,balance,role}=req.body;
 
     const existingUser = await UserModel.findOne({ email:email });
 
@@ -66,8 +66,7 @@ async singnUp(req,res){
         email: email,
         phone:phone,
         balance:balance||0,
-        address:address,
-        role:role,
+        role:role||2,
         verified: true,
 
      });
@@ -86,7 +85,7 @@ async singnUp(req,res){
 
       });
   
-     return res.status(HTTP_STATUS.OK).send(success("Registration successful!!!"));
+     return res.status(HTTP_STATUS.CREATED).send(success("Registration successful!!!"));
 
         
     } catch (error) {

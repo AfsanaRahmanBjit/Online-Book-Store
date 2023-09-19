@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 
-const reviewSchema = new mongoose.Schema(
+const feedbackSchema = new mongoose.Schema(
   {
-    user: {
+    userID: {
       type: mongoose.Types.ObjectId,
       ref: "users",
       required: true,
     },
-    book: {
+    bookID: {
       type: mongoose.Types.ObjectId,
       ref: "books",
       required: true,
@@ -18,7 +18,7 @@ const reviewSchema = new mongoose.Schema(
       min: 1,
       max: 5,
     },
-    comment: {
+    review: {
       type: String,
       required: true,
     },
@@ -26,5 +26,5 @@ const reviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Review= mongoose.model("reviews", reviewSchema);
-module.exports = Review;
+const FeedBack= mongoose.model("feedbacks", feedbackSchema);
+module.exports = FeedBack;

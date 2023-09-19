@@ -10,7 +10,7 @@ const discountSchema = new mongoose.Schema(
     discountPercentage: {
         type: Number,
         required: false, 
-        min: 0,
+        min: 1,
         max: 100, 
       },
       startDate: {
