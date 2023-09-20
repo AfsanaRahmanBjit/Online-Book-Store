@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator");
 const { success, failure } = require("../output/statements");
 const UserModel = require("../model/UserModel");
 const HTTP_STATUS = require("../constants/statusCodes");
+const { log } = require('../server/logger');
 
 class UserController {
   async getAll(req, res) {
@@ -75,7 +76,7 @@ class UserController {
         updatedFields.rank = req.body.phone;
       }
       if (req.body.role) {
-        updatedFields.discountPercentage = req.body.role;
+        updatedFields.role = req.body.role;
       }
       if (req.body.verified) {
         updatedFields.discountPercentage = req.body.verified;

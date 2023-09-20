@@ -5,6 +5,7 @@ const BookModel = require('../model/BookModel');
 const DiscountModel = require('../model/DiscountModel');
 const UserModel = require('../model/UserModel');
 const HTTP_STATUS = require("../constants/statusCodes");
+const { log } = require('../server/logger');
 
 class CartController{
     async getCart(req, res) {

@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const logDirectory = 'log'; 
+const logDirectory = 'server'; 
 const logFilePath = path.join(logDirectory, 'server.log');
 
 

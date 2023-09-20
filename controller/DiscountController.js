@@ -3,6 +3,7 @@ const { success, failure } = require("../output/statements");
 const DiscountModel = require("../model/DiscountModel");
 const BookModel = require("../model/BookModel");
 const HTTP_STATUS = require("../constants/statusCodes");
+const { log } = require('../server/logger');
 
 
 class DiscountController {
@@ -19,19 +20,21 @@ class DiscountController {
        
                return res.status(HTTP_STATUS.NOT_FOUND).send(failure("There is no book exist with the given ID"));
             }
+
+            const bookDiscount= await DiscountModel.find({bookID:bookID});
+            if (!bookDiscount) {
+       
+              return res.status(HTTP_STATUS.CONFLICT).send(failure("This book alreay have a discount. If you want you can edit that discount."));
+           }
             const currentDate = new Date();
 
-            if (startDate && isNaN(startDate.getTime())) {
-                return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Invalid start date"));
-              }
+            
 
             if (startDate && startDate < currentDate) {
                
                 return res.status(HTTP_STATUS.CONFLICT).send(failure("Start date cannot be in the past"));
               }
-              if (endDate && isNaN(endDate.getTime())) {
-                return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Invalid end date"));
-              }
+              
               
             if (endDate && endDate < currentDate) {
                
@@ -45,18 +48,13 @@ class DiscountController {
               endDate: endDate,
                });  
 
+              book.discounts.push(addDiscount._id);
+              await book.save();
+         
             if(addDiscount) {
                 return res.status(HTTP_STATUS.CREATED).send(success("Discount added successfully",addDiscount));
             }
-            
-            
-      
-            book.discounts.push(addDiscount._id);
-            await book.save();
-      
-
-            
-            return res.status(HTTP_STATUS.EXPECTATION_FAILED).send(failure("Failed to add discount."));
+         return res.status(HTTP_STATUS.EXPECTATION_FAILED).send(failure("Failed to add discount."));
         } catch (error) {
             console.error(error);
             return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(failure("Internal Server Error"));
@@ -77,17 +75,13 @@ class DiscountController {
             }
             const currentDate = new Date();
 
-            if (startDate && isNaN(startDate.getTime())) {
-                return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Invalid start date"));
-              }
+           
 
             if (startDate && startDate < currentDate) {
                
                 return res.status(HTTP_STATUS.CONFLICT).send(failure("Start date cannot be in the past"));
               }
-              if (endDate && isNaN(endDate.getTime())) {
-                return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Invalid end date"));
-              }
+             
               
             if (endDate && endDate < currentDate) {
                
@@ -119,41 +113,47 @@ class DiscountController {
           }
           const{id}=req.params;
           const { bookID, discountPercentage, startDate, endDate} = req.body;
-          const book= await DiscountModel.findById({bookID: bookID });
+          const book= await DiscountModel.find({bookID: bookID });
           if (!book) {
      
              return res.status(HTTP_STATUS.NOT_FOUND).send(failure("This book does not have any discount."));
           }
           const currentDate = new Date();
 
-          if (startDate && isNaN(startDate.getTime())) {
-              return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Invalid start date"));
-            }
 
           if (startDate && startDate < currentDate) {
              
               return res.status(HTTP_STATUS.CONFLICT).send(failure("Start date cannot be in the past"));
             }
-            if (endDate && isNaN(endDate.getTime())) {
-              return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Invalid end date"));
-            }
+            
             
           if (endDate && endDate < currentDate) {
              
               return res.status(HTTP_STATUS.CONFLICT).send(failure("End date cannot be in the past"));
             }
-          const discountUpdate= await DiscountModel.findByIdAndUpdate(
+
+            const updatedFields = {}; 
+      
+            if (req.body.discountPercentage) {
+              updatedFields.discountPercentage = req.body.discountPercentage;
+            }
+            if (req.body.startDate) {
+              updatedFields.startDate = req.body.startDate;
+            }
+            if (req.body.endDate) {
+              updatedFields.endDate= req.body.endDate;
+            }
+            
+            const discountUpdate = await DiscountModel.findByIdAndUpdate(
               id,
-              {
-                  discountPercentage, startDate, endDate 
-              },
+              { $set: updatedFields }, 
               { new: true }
-          );
+            );
+          
 
           if (discountUpdate) {
               return res.status(HTTP_STATUS.OK).send(success("Successfully updated the discount data", discountUpdate));
             } 
-             return res.status(HTTP_STATUS.BAD_REQUEST).send(failure("Failed to update the discount data"));
           
       } catch (error) {
           console.error(error);

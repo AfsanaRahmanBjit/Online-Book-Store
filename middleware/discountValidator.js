@@ -66,10 +66,7 @@ const discountValidator = {
       .notEmpty()
       .withMessage("Start Date  cannot be empty")
       .bail()
-      .custom(value => {
-        const date = new Date(value);
-        return !isNaN(date.getTime()); 
-      })
+      .isString()
       .withMessage("Start date must be a valid date"),
 
     body("endDate")
@@ -79,12 +76,9 @@ const discountValidator = {
       .notEmpty()
       .withMessage("End Date  cannot be empty")
       .bail()
-      .custom(value => {
-        const date = new Date(value);
-        return !isNaN(date.getTime()); 
-      })
+      .isString()
       .withMessage("End date must be a valid date"),
-    
+
   ],
 
   partialUpdate: [
@@ -98,21 +92,15 @@ const discountValidator = {
 
     body("startDate")
       .optional()
-      .custom(value => {
-        const date = new Date(value);
-        return !isNaN(date.getTime()); 
-      })
+      .isString()
       .withMessage("Start date must be a valid date"),
-      
+
 
     body("endDate")
       .optional()
-      .custom(value => {
-        const date = new Date(value);
-        return !isNaN(date.getTime()); 
-      })
+      .isString()
       .withMessage("End date must be a valid date"),
-    ]
+  ]
 };
 
 module.exports = { discountValidator };

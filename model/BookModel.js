@@ -29,7 +29,12 @@ const bookSchema = new mongoose.Schema({
     min: 0,
     max: 200,
   },
-  feedbacks: [
+  rating: {
+    type: Number,
+    default: 0,     
+    max: 5,     
+  },
+  reviews: [
     {
       type: mongoose.Types.ObjectId,
       ref: "feedbacks",

@@ -5,12 +5,12 @@ const transactionSchema=new mongoose.Schema(
 
    cartID:{
     type:mongoose.Types.ObjectId,
-    ref:"Cart",
+    ref:"carts",
     required:true,
    },
    userID:{
         type: mongoose.Types.ObjectId,
-         ref: "User",
+         ref: "users",
          required: true,
     },
     books:{
@@ -18,7 +18,7 @@ const transactionSchema=new mongoose.Schema(
              {
                  bookID:{
                  type:mongoose.Types.ObjectId,
-                 ref:"Product",
+                 ref:"books",
                  required:true,
               },
               quantity:Number,
@@ -41,5 +41,5 @@ const transactionSchema=new mongoose.Schema(
   {timestamps:true}
 );
 
-const Transaction=mongoose.model("Transaction",transactionSchema);
+const Transaction=mongoose.model("transactions",transactionSchema);
 module.exports=Transaction;

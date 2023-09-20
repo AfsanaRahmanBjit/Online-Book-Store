@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator");
 const { success, failure } = require("../output/statements");
 const BookModel = require("../model/BookModel");
 const HTTP_STATUS = require("../constants/statusCodes");
+const { log } = require('../server/logger');
 
 class BookController {
   async getAll(req, res) {
@@ -70,7 +71,7 @@ class BookController {
 
 
           if (filterField && filterStart && filterLimit) {
-            if(!['price','stock'].includes(filterField)){
+            if(!['price','stock','rating'].includes(filterField)){
               return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Invalid attribute for filter out"));
             }
             const filterStartNum = parseInt(filterStart);
@@ -79,29 +80,29 @@ class BookController {
               return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).send(failure("Invalid filter starting value"));
             }
           
-            if(filterField==='discount'){
-              if (filterLimit=== 'high') {
-              query.discount = { $gte: filterStartNum };
+            if(filterField==='rating'){
+              if (filterLimit=== 'greater') {
+              query.rating = { $gte: filterStartNum };
              } 
-            if (filterLimit === 'low') {
-            query.discount = { $lte:filterStartNum };
+            if (filterLimit === 'less') {
+            query.discounts.discountPercentage = { $lte:filterStartNum };
             }
            
             }
           if(filterField==='price'){
-             if (filterLimit=== 'high') {
+             if (filterLimit=== 'greater') {
               query.price = { $gte: filterStartNum };
              } 
-            if (filterLimit === 'low') {
+            if (filterLimit === 'less') {
               query.price = { $lte:filterStartNum };
              }
           
           }
           if(filterField==='stock'){
-            if (filterLimit=== 'high') {
+            if (filterLimit=== 'greater') {
             query.stock = { $gte: filterStartNum };
            } 
-          if (filterLimit === 'low') {
+          if (filterLimit === 'less') {
           query.discount = { $lte:filterStartNum };
           }
          
@@ -142,7 +143,8 @@ class BookController {
           return res.status(HTTP_STATUS.NOT_FOUND).send(success("No products were found"));
         }
       
-        const booksPage = await BookModel.find(query,{createdAt:false,updatedAt:false}).sort(sortOptions).skip((pageNum_default-1)*limitNum_default).limit(limitNum_default);
+        const booksPage = await BookModel.find(query,{createdAt:false,updatedAt:false}).populate('reviews','review').populate( 'discounts',
+        'discountPercentage startDate endDate').sort(sortOptions).skip((pageNum_default-1)*limitNum_default).limit(limitNum_default);
       
         if (booksPage.length > 0) {
            return res.status(HTTP_STATUS.OK).send(success("Successfully received all Books", { Page:pageNum_default, Limit:limitNum_default, Total:books.length, Result:booksPage}));
@@ -257,16 +259,16 @@ class BookController {
         updatedFields.title = req.body.title;
       }
       if (req.body.author) {
-        updatedFields.email = req.body.author;
+        updatedFields.author = req.body.author;
       }
       if (req.body.publisher) {
-        updatedFields.rank = req.body.publisher;
+        updatedFields.publisher = req.body.publisher;
       }
       if (req.body.price) {
-        updatedFields.discountPercentage = req.body.price;
+        updatedFields.price = req.body.price;
       }
       if (req.body.stock) {
-        updatedFields.discountPercentage = req.body.stock;
+        updatedFields.stock = req.body.stock;
       }
      
       const updatedBook = await BookModel.findByIdAndUpdate(
